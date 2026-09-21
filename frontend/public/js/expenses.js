@@ -5,6 +5,17 @@ import {
   $, cell, chipCell, el, emptyRow, money, monthStartISO, setMessage, showFatal, showPage, todayISO,
 } from './utils.js';
 
+/** Fill the category <select> with the user's existing categories, keeping "All categories" first. */
+async function loadCategoryOptions() {
+  const select = $('category');
+  try {
+    const categories = await api('/expenses/categories');
+    select.append(...categories.map((c) => el('option', { value: c, text: c })));
+  } catch (_) {
+    // Filtering still works without the list; the "All categories" option is already there.
+  }
+}
+
 const PAGE_SIZE = 20;
 let offset = 0;    // how many rows are already on screen
 let requestId = 0; // ignore out-of-date responses while the user is still typing
@@ -53,11 +64,6 @@ async function load({ reset }) {
   }
 }
 
-function debounce(fn, ms) {
-  let timer;
-  return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
-}
-
 async function main() {
   const user = await requireAuth();
   renderNavbar(user, '/expenses');
@@ -66,10 +72,11 @@ async function main() {
   $('from').value = monthStartISO();
   $('to').value = todayISO();
   $('to').max = todayISO();
+  await loadCategoryOptions();
 
   $('from').addEventListener('change', () => load({ reset: true }));
   $('to').addEventListener('change', () => load({ reset: true }));
-  $('category').addEventListener('input', debounce(() => load({ reset: true }), 250));
+  $('category').addEventListener('change', () => load({ reset: true }));
   $('filters').addEventListener('submit', (e) => e.preventDefault());
   $('load-more').addEventListener('click', () => load({ reset: false }));
   $('clear').addEventListener('click', () => {

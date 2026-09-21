@@ -31,7 +31,11 @@
       <form id="filters" class="filters" novalidate>
         <label>From <input id="from" type="date"></label>
         <label>To <input id="to" type="date"></label>
-        <label>Category <input id="category" type="text" maxlength="50" placeholder="All categories"></label>
+        <label>Category
+          <select id="category">
+            <option value="">All categories</option>
+          </select>
+        </label>
         <button type="button" id="clear" class="btn btn-secondary">Clear filters</button>
       </form>
       <p id="expenses-message" role="status"></p>

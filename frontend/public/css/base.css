@@ -74,16 +74,17 @@ label {
 }
 label.inline { flex-direction: row; align-items: center; gap: 8px; font-weight: 500; color: var(--muted); }
 
-input {
+input, select {
   font: inherit; color: var(--ink);
   min-height: 42px; padding: 9px 12px; min-width: 0;
   background: var(--tint);
   border: 1px solid var(--line); border-radius: 10px;
   transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
 }
+select { appearance: auto; }
 input::placeholder { color: #8ba3ba; }
-input:hover { border-color: #b9d3ec; }
-input:focus-visible {
+input:hover, select:hover { border-color: #b9d3ec; }
+input:focus-visible, select:focus-visible {
   outline: none; background: #fff; border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(29, 111, 196, 0.22);
 }

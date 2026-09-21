@@ -5,6 +5,16 @@ import { $, busy, el, setMessage, showFatal, showPage, todayISO } from './utils.
 
 let messageTimer = null;
 
+/** Suggest the user's existing categories via the input's <datalist>, without limiting them to it. */
+async function loadCategoryOptions() {
+  try {
+    const categories = await api('/expenses/categories');
+    $('category-options').append(...categories.map((c) => el('option', { value: c })));
+  } catch (_) {
+    // Suggestions are a nice-to-have; typing a category by hand still works fine.
+  }
+}
+
 $('expense-form').addEventListener('submit', async (event) => {
   event.preventDefault();
   const message = $('form-message');
@@ -37,6 +47,7 @@ async function main() {
   renderNavbar(user, '/add-expense');
   $('date').value = todayISO();
   $('date').max = todayISO(); // the API rejects future dates
+  loadCategoryOptions();
   showPage();
   $('amount').focus();
 }

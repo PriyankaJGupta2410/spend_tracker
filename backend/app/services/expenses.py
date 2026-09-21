@@ -114,6 +114,15 @@ def create_expense(
 
     return _to_dict(expense)
 
+def list_categories(db: Session, *, user_id: str) -> list[str]:
+    """Distinct categories the user has already logged an expense under, A-Z."""
+    stmt = (
+        select(Expense.category)
+        .where(Expense.user_id == user_id)
+        .distinct()
+        .order_by(Expense.category)
+    )
+    return list(db.scalars(stmt))
 
 def list_expenses(db: Session, *, user_id: str, category: str | None, start_date: dt.date | None,
                   end_date: dt.date | None, limit: int, offset: int) -> list[dict]:

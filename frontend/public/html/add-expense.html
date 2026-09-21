@@ -33,7 +33,8 @@
           <input id="date" type="date" required>
         </label>
         <label class="full">Category
-          <input id="category" type="text" maxlength="50" placeholder="food, travel, rent" required>
+          <input id="category" type="text" maxlength="50" placeholder="food, travel, rent" list="category-options" autocomplete="off" required>
+          <datalist id="category-options"></datalist>
         </label>
         <label class="full">Note (optional)
           <input id="note" type="text" maxlength="200" placeholder="What was it for?">

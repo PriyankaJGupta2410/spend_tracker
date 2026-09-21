@@ -24,6 +24,10 @@ def create_expense(payload: ExpenseCreate, user: User = Depends(get_current_user
         note=payload.note, date=payload.date,
     )
 
+@router.get("/expenses/categories", response_model=list[str])
+def list_categories(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Distinct categories the user has already logged an expense under, for dropdowns."""
+    return services.expenses.list_categories(db, user_id=user.id)
 
 @router.get("/expenses", response_model=list[ExpenseOut])
 def list_expenses(
