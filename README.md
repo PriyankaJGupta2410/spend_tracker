@@ -11,14 +11,21 @@ A small expense tracking service. Users register and log in, log their own expen
 spend-tracker/
 ├── backend/
 │   ├── app/
-│   │   ├── main.py        # routes, error handlers, CORS (Starlette middleware)
-│   │   ├── config.py      # loads .env and exposes settings
-│   │   ├── database.py    # SQLAlchemy engine and session dependency
-│   │   ├── models.py      # User and Expense tables
-│   │   ├── schemas.py     # Pydantic request/response models and validation
-│   │   ├── auth.py        # bcrypt hashing, JWT creation and verification
-│   │   └── services.py    # queries and business logic (summary, MoM, insights)
-│   ├── tests/             # pytest suite
+│   │   ├── main.py            # creates the app, error handlers, CORS, includes the routers
+│   │   ├── config.py          # loads .env and exposes settings
+│   │   ├── database.py        # SQLAlchemy engine and session dependency
+│   │   ├── models.py          # User and Expense tables
+│   │   ├── security.py        # bcrypt hashing, JWT creation and verification
+│   │   ├── routers/           # one file per module, HTTP layer only
+│   │   │   ├── auth.py        #   POST /auth/register, /auth/login, GET /auth/me
+│   │   │   └── expenses.py    #   POST/GET /expenses, GET /summary
+│   │   ├── schemas/           # one file per module, Pydantic request/response models
+│   │   │   ├── auth.py        #   UserCreate, LoginRequest, UserOut, Token
+│   │   │   └── expenses.py    #   ExpenseCreate, ExpenseOut, Summary, ...
+│   │   └── services/          # one file per module, queries and business logic
+│   │       ├── auth.py        #   create_user, get_user_by_username
+│   │       └── expenses.py    #   expense CRUD, summary, month-over-month, insights
+│   ├── tests/                 # pytest suite
 │   ├── .env.example
 │   └── requirements.txt
 ├── frontend/
@@ -32,6 +39,8 @@ spend-tracker/
 │       └── favicon.svg
 └── README.md
 ```
+
+Each module's `routers/`, `schemas/` and `services/` file only depends on its own module plus the shared `config.py`, `database.py`, `models.py` and `security.py`. `schemas/__init__.py` and `services/__init__.py` re-export everything from the per-module files, so `from app import services` and `from .schemas import UserOut` still work exactly as before, whether you import from the package or a specific module file.
 
 ## Run it locally
 
@@ -226,11 +235,11 @@ All errors share one shape:
 - **Real `DATE` column and composite indexes.** Range filters and monthly grouping are plain `>=` and `<` comparisons. Indexes on `(user_id, spent_on)` and `(user_id, category, spent_on)` match how every query is filtered. A `CHECK (amount > 0)` constraint backs up the API validation (enforced by MySQL 8.0.16 and later).
 - **JWT authentication.** Login returns a signed, expiring token whose `sub` is the user id. On each request the token is verified with a fixed algorithm list, `exp` and `sub` are required, and the user is loaded from the database, so a token for a deleted user stops working. The secret comes from `.env`.
 - **Passwords with bcrypt.** Only the hash is stored. Login always performs a bcrypt check (against a dummy hash when the username is unknown) and returns one generic error, to avoid revealing which usernames exist through the message or the response time.
-- **Per-user data.** Every expense has a `user_id` foreign key, and every query in `services.py` filters by it. A test confirms that one user never sees another's expenses or summary.
+- **Per-user data.** Every expense has a `user_id` foreign key, and every query in `services/expenses.py` filters by it. A test confirms that one user never sees another's expenses or summary.
 - **Categories are normalised** (trimmed, lowercased) on the way in, so "Food" and "food " are the same bucket. Filtering is normalised the same way.
 - **Summary is scoped to a month.** Month-over-month needs a reference month, so total and category breakdown are for the chosen month, compared with the previous one. `all_time_total` is included as an extra figure. When the previous month has no spend, `change_percent` is `null` rather than infinity or a made-up number.
-- **Spike insight rules.** A category is flagged when spend is *strictly more than* 20% above last month. Categories with no spend last month are not flagged, because there is no baseline. The threshold is a constant in `services.py`.
-- **Separated layers.** `main.py` handles HTTP, `schemas.py` validation, `models.py` and `database.py` persistence, `auth.py` security, and `services.py` the queries and pure calculation functions (`compute_change`, `find_spikes`, `month_range`), which are unit tested without HTTP.
+- **Spike insight rules.** A category is flagged when spend is *strictly more than* 20% above last month. Categories with no spend last month are not flagged, because there is no baseline. The threshold is a constant in `services/expenses.py`.
+- **Separated by layer, then by module.** `routers/` handles HTTP, `schemas/` validation, `models.py` and `database.py` persistence, `security.py` password hashing and JWTs, and `services/` the queries and pure calculation functions (`compute_change`, `find_spikes`, `month_range`), which are unit tested without HTTP. Within `routers/`, `schemas/` and `services/`, each feature module (`auth`, `expenses`) gets its own file, so adding a new module means adding one file per layer rather than growing three shared files.
 - **Consistent error responses.** Starlette exception handlers convert Pydantic validation errors and `HTTPException`s into one JSON shape, so a client only has to handle one format.
 - **Express serves pages and proxies the API.** It maps clean URLs (`/login`, `/dashboard` and so on) to the files in `public/html`, serves `css/` and `js/` as static assets, and forwards `/api/*` to FastAPI with the `Authorization` header passed through. The browser only talks to one origin, so no CORS setup is needed.
 - **Frontend guards and safety.** Logged-in pages stay hidden until `/auth/me` confirms the token, and any 401 clears the token and returns to `/login`. All user text is inserted with `textContent`, so a note like `<script>` cannot inject markup.
@@ -265,4 +274,4 @@ Two web services plus a managed MySQL database on Render, Railway, Fly.io or sim
 
 > Edit this note so it is true for you before you submit.
 
-I used an AI assistant to scaffold the FastAPI project, the tests and the Express proxy. I read through all of it, ran the tests, and changed: (1) ... (2) ... I rejected or modified: (1) ...
+I used an AI assistant to scaffold the FastAPI project, the tests and the Express proxy, and later to split the backend into module-wise routers, schemas and services. I read through all of it, ran the tests, and changed: (1) ... (2) ... I rejected or modified: (1) ...
