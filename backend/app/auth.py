@@ -31,7 +31,7 @@ def verify_password(password: str, hashed: str) -> bool:
 DUMMY_HASH = hash_password("not-a-real-password")
 
 
-def create_access_token(user_id: int) -> str:
+def create_access_token(user_id: str) -> str:
     now = dt.datetime.now(dt.timezone.utc)
     payload = {
         "sub": str(user_id),
@@ -57,7 +57,10 @@ def get_current_user(
             algorithms=[config.JWT_ALGORITHM],  # fixed list, never trust the token's own "alg"
             options={"require": ["exp", "sub"]},
         )
-        user_id = int(payload["sub"])
+        user_id = payload["sub"]
+        if not isinstance(user_id, str):
+            raise ValueError("Invalid user ID")
+
     except (jwt.PyJWTError, ValueError):
         raise unauthorized
     user = db.get(User, user_id)

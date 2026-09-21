@@ -1,5 +1,6 @@
 import datetime as dt
 from decimal import Decimal
+from uuid import UUID
 
 from sqlalchemy import CheckConstraint, Date, DateTime, ForeignKey, Index, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column
@@ -15,7 +16,7 @@ def _utcnow() -> dt.datetime:
 class User(Base):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    id: Mapped[UUID] = mapped_column(String(36), primary_key=True, nullable=False)
     username: Mapped[str] = mapped_column(String(30), unique=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(String(100), nullable=False)
     created_at: Mapped[dt.datetime] = mapped_column(DateTime, nullable=False, default=_utcnow)
@@ -29,9 +30,12 @@ class Expense(Base):
         Index("ix_expenses_user_category_spent_on", "user_id", "category", "spent_on"),
     )
 
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    # DECIMAL(12, 2): exact fixed-point money, no float rounding, summed exactly by MySQL.
+    id: Mapped[UUID] = mapped_column(String(36), primary_key=True, nullable=False)
+    user_id: Mapped[UUID] = mapped_column(
+        String(36),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+    )
     amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
     category: Mapped[str] = mapped_column(String(50), nullable=False)
     note: Mapped[str | None] = mapped_column(String(200), nullable=True)

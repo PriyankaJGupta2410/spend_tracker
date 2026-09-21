@@ -7,6 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from .models import Expense, User
+from uuid import uuid4
 
 SPIKE_THRESHOLD_PERCENT = Decimal("20")
 ZERO = Decimal("0")
@@ -84,13 +85,21 @@ def get_user_by_username(db: Session, username: str) -> User | None:
 
 def create_user(db: Session, username: str, password_hash: str) -> User | None:
     """Returns None if the username is taken. The unique index decides, so races are safe."""
-    user = User(username=username, password_hash=password_hash)
+
+    user = User(
+        id=str(uuid4()),
+        username=username,
+        password_hash=password_hash,
+    )
+
     db.add(user)
+
     try:
         db.commit()
     except IntegrityError:
         db.rollback()
         return None
+
     db.refresh(user)
     return user
 
@@ -108,16 +117,16 @@ def _to_dict(e: Expense) -> dict:
     }
 
 
-def create_expense(db: Session, *, user_id: int, amount: Decimal, category: str,
+def create_expense(db: Session, *, user_id: str, amount: Decimal, category: str,
                    note: str | None, date: dt.date) -> dict:
-    expense = Expense(user_id=user_id, amount=amount, category=category, note=note, spent_on=date)
+    expense = Expense(id = str(uuid4()),user_id=user_id, amount=amount, category=category, note=note, spent_on=date)
     db.add(expense)
     db.commit()
     db.refresh(expense)
     return _to_dict(expense)
 
 
-def list_expenses(db: Session, *, user_id: int, category: str | None, start_date: dt.date | None,
+def list_expenses(db: Session, *, user_id: str, category: str | None, start_date: dt.date | None,
                   end_date: dt.date | None, limit: int, offset: int) -> list[dict]:
     stmt = select(Expense).where(Expense.user_id == user_id)
     if category:
@@ -130,7 +139,7 @@ def list_expenses(db: Session, *, user_id: int, category: str | None, start_date
     return [_to_dict(e) for e in db.scalars(stmt)]
 
 
-def _totals_by_category(db: Session, user_id: int, month: str) -> dict[str, Decimal]:
+def _totals_by_category(db: Session, user_id: str, month: str) -> dict[str, Decimal]:
     start, end = month_range(month)
     total = func.sum(Expense.amount).label("total")
     stmt = (
@@ -142,7 +151,7 @@ def _totals_by_category(db: Session, user_id: int, month: str) -> dict[str, Deci
     return {category: Decimal(t) for category, t in db.execute(stmt)}
 
 
-def build_summary(db: Session, user_id: int, month: str) -> dict:
+def build_summary(db: Session, user_id: str, month: str) -> dict:
     prev_month = previous_month(month)
     current = _totals_by_category(db, user_id, month)
     previous = _totals_by_category(db, user_id, prev_month)
