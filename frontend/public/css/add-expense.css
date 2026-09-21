@@ -1,0 +1,4 @@
+/* Add expense page only. */
+.add-card { max-width: 560px; }
+.form-actions { display: flex; gap: 10px; }
+.form-actions .btn-primary { flex: 1; }

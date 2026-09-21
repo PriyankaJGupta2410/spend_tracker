@@ -1,0 +1,6 @@
+/* Login page only. */
+.notice {
+  margin: 0 0 16px; padding: 10px 14px;
+  background: #fff5dc; color: #5f4304;
+  border-left: 4px solid #e0a526; border-radius: 8px; font-size: 0.9rem;
+}

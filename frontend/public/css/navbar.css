@@ -1,0 +1,31 @@
+/* Top navigation, used by the pages you see after logging in. */
+.topbar { background: var(--surface); border-bottom: 1px solid var(--line); }
+.topbar-inner {
+  max-width: 1040px; margin: 0 auto; padding: 10px 20px;
+  display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+}
+.brand {
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 700; font-size: 1.1rem; letter-spacing: -0.01em;
+  color: var(--ink); text-decoration: none;
+}
+.brand img { width: 28px; height: 28px; }
+
+.nav-links { display: flex; gap: 4px; }
+.topbar .nav-link {
+  padding: 8px 14px; border-radius: 8px;
+  font-weight: 600; font-size: 0.9375rem; color: var(--muted); text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+.topbar .nav-link:hover { background: var(--tint); color: var(--ink); }
+.topbar .nav-link[aria-current="page"] { background: var(--primary-soft); color: var(--primary-ink); }
+.topbar .nav-link:focus-visible,
+.topbar .brand:focus-visible { outline: 3px solid rgba(29, 111, 196, 0.35); outline-offset: 2px; }
+
+.nav-user { margin-left: auto; display: flex; align-items: center; gap: 12px; color: var(--muted); }
+.nav-username { font-weight: 600; color: var(--ink); }
+
+@media (max-width: 720px) {
+  .topbar-inner { padding: 10px 14px; gap: 10px 14px; }
+  .nav-links { order: 3; width: 100%; overflow-x: auto; }
+}

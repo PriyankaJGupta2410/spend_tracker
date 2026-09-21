@@ -1,0 +1,10 @@
+/* Expenses list page only. */
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  align-items: end;
+  margin-bottom: 20px;
+}
+.results-meta { margin: 14px 2px 0; font-size: 0.875rem; color: var(--muted); }
+.load-more { display: flex; justify-content: center; margin-top: 16px; }

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1d6fc4">
+  <title>Log in | Spend Tracker</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+  <main class="auth-page">
+    <section class="card auth-card" aria-labelledby="login-heading">
+      <div class="auth-brand"><img src="/favicon.svg" alt=""><span>Spend Tracker</span></div>
+      <h1 id="login-heading" class="page-title">Log in</h1>
+      <p class="lede">Track what you spend and see how it changes each month.</p>
+
+      <p id="expired-notice" class="notice" role="alert" hidden>Your session has expired. Please log in again.</p>
+
+      <form id="login-form" class="stack" novalidate>
+        <label>Username
+          <input id="username" type="text" autocomplete="username" maxlength="30" autofocus required>
+        </label>
+        <label>Password
+          <input id="password" type="password" autocomplete="current-password" maxlength="72" required>
+        </label>
+        <button type="submit" id="login-btn" class="btn btn-primary">Log in</button>
+      </form>
+      <p id="login-message" role="status"></p>
+
+      <p class="auth-switch">New here? <a class="link" href="/register">Create an account</a></p>
+    </section>
+  </main>
+  <script type="module" src="/js/login.js"></script>
+</body>
+</html>

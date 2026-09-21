@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1d6fc4">
+  <title>Add expense | Spend Tracker</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/navbar.css">
+  <link rel="stylesheet" href="/css/add-expense.css">
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main id="page" class="page" hidden>
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">Add expense</h1>
+        <p class="page-sub">Record something you spent.</p>
+      </div>
+    </div>
+
+    <section class="card add-card" aria-label="New expense">
+      <form id="expense-form" class="form-grid" novalidate>
+        <label>Amount
+          <input id="amount" type="number" inputmode="decimal" step="0.01" min="0.01" placeholder="0.00" autofocus required>
+        </label>
+        <label>Date
+          <input id="date" type="date" required>
+        </label>
+        <label class="full">Category
+          <input id="category" type="text" maxlength="50" placeholder="food, travel, rent" required>
+        </label>
+        <label class="full">Note (optional)
+          <input id="note" type="text" maxlength="200" placeholder="What was it for?">
+        </label>
+        <div class="form-actions full">
+          <button type="submit" id="add-btn" class="btn btn-primary">Add expense</button>
+          <a href="/expenses" class="btn btn-secondary">View expenses</a>
+        </div>
+      </form>
+      <p id="form-message" role="status"></p>
+    </section>
+  </main>
+  <script type="module" src="/js/add-expense.js"></script>
+</body>
+</html>

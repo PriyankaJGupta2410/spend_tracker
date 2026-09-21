@@ -1,0 +1,16 @@
+{
+  "name": "spend-tracker-frontend",
+  "version": "2.0.0",
+  "description": "Static UI plus a small Express proxy for the Spend Tracker API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  }
+}

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1d6fc4">
+  <title>Dashboard | Spend Tracker</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/navbar.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main id="page" class="page" hidden>
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-sub">Your spending for the selected month.</p>
+      </div>
+      <div class="page-actions">
+        <label class="inline">Month <input id="month" type="month"></label>
+        <a href="/add-expense" class="btn btn-primary">Add expense</a>
+      </div>
+    </div>
+
+    <p id="dashboard-message" role="status"></p>
+
+    <div class="dash-grid">
+      <div class="dash-left">
+        <section class="card total-card" aria-label="Total spent">
+          <p class="total-label">Total spent</p>
+          <p class="total"><span id="total">0.00</span></p>
+          <p id="mom" class="mom mom-none"></p>
+          <p class="footnote">All-time total: <strong id="all-time">0.00</strong></p>
+        </section>
+
+        <section class="card" aria-labelledby="insights-heading">
+          <div class="card-head"><h2 id="insights-heading">Insights</h2></div>
+          <div id="insights"></div>
+        </section>
+      </div>
+
+      <section class="card" aria-labelledby="category-heading">
+        <div class="card-head"><h2 id="category-heading">Spending by category</h2></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Category</th><th class="num">Total</th><th class="num">Share</th></tr></thead>
+            <tbody id="by-category"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+  <script type="module" src="/js/dashboard.js"></script>
+</body>
+</html>

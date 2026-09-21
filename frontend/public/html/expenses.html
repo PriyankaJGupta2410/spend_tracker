@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1d6fc4">
+  <title>Expenses | Spend Tracker</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/navbar.css">
+  <link rel="stylesheet" href="/css/expenses.css">
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main id="page" class="page" hidden>
+    <div class="page-head">
+      <div>
+        <h1 class="page-title">Expenses</h1>
+        <p class="page-sub">Filter by date range and category.</p>
+      </div>
+      <div class="page-actions">
+        <a href="/add-expense" class="btn btn-primary">Add expense</a>
+      </div>
+    </div>
+
+    <section class="card" aria-label="Expenses">
+      <form id="filters" class="filters" novalidate>
+        <label>From <input id="from" type="date"></label>
+        <label>To <input id="to" type="date"></label>
+        <label>Category <input id="category" type="text" maxlength="50" placeholder="All categories"></label>
+        <button type="button" id="clear" class="btn btn-secondary">Clear filters</button>
+      </form>
+      <p id="expenses-message" role="status"></p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Category</th><th>Note</th><th class="num">Amount</th></tr></thead>
+          <tbody id="expenses"></tbody>
+        </table>
+      </div>
+      <p id="results-meta" class="results-meta"></p>
+      <div class="load-more"><button type="button" id="load-more" class="btn btn-secondary" hidden>Load more</button></div>
+    </section>
+  </main>
+  <script type="module" src="/js/expenses.js"></script>
+</body>
+</html>
