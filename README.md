@@ -22,10 +22,14 @@ spend-tracker/
 │   ├── .env.example
 │   └── requirements.txt
 ├── frontend/
-│   ├── server.js          # Express: static files + /api proxy to the backend
+│   ├── server.js          # Express: page routes, static files, /api proxy to the backend
 │   ├── package.json
 │   ├── .env.example
-│   └── public/            # index.html, style.css, app.js
+│   └── public/
+│       ├── html/          # one file per page: login, register, dashboard, expenses, add-expense
+│       ├── css/           # base.css and navbar.css (shared) + one css file per page
+│       ├── js/            # api, auth, utils, navbar (shared) + one js file per page
+│       └── favicon.svg
 └── README.md
 ```
 
@@ -68,6 +72,16 @@ npm start
 ```
 
 Open http://localhost:3000, create an account and start adding expenses.
+
+| Page | URL | Files |
+|---|---|---|
+| Log in | `/login` | `html/login.html`, `css/login.css`, `js/login.js` |
+| Create account | `/register` | `html/register.html`, `css/register.css`, `js/register.js` |
+| Dashboard (summary, month-over-month, insights) | `/dashboard` | `html/dashboard.html`, `css/dashboard.css`, `js/dashboard.js` |
+| Expenses (date range and category filters, load more) | `/expenses` | `html/expenses.html`, `css/expenses.css`, `js/expenses.js` |
+| Add expense | `/add-expense` | `html/add-expense.html`, `css/add-expense.css`, `js/add-expense.js` |
+
+Every page also loads the shared `css/base.css` (theme and common components). The logged-in pages add `css/navbar.css` and `js/navbar.js`. Shared scripts: `js/api.js` (fetch wrapper and token storage), `js/auth.js` (login, register, logout and page guards) and `js/utils.js` (formatting and DOM helpers). Scripts are ES modules, so no build step is needed.
 
 ### 4. Tests
 
@@ -218,7 +232,8 @@ All errors share one shape:
 - **Spike insight rules.** A category is flagged when spend is *strictly more than* 20% above last month. Categories with no spend last month are not flagged, because there is no baseline. The threshold is a constant in `services.py`.
 - **Separated layers.** `main.py` handles HTTP, `schemas.py` validation, `models.py` and `database.py` persistence, `auth.py` security, and `services.py` the queries and pure calculation functions (`compute_change`, `find_spikes`, `month_range`), which are unit tested without HTTP.
 - **Consistent error responses.** Starlette exception handlers convert Pydantic validation errors and `HTTPException`s into one JSON shape, so a client only has to handle one format.
-- **Express as a thin proxy.** It serves the static UI and forwards `/api/*` to FastAPI, passing the `Authorization` header through. The UI renders user text with `textContent`, so a note like `<script>` cannot inject markup.
+- **Express serves pages and proxies the API.** It maps clean URLs (`/login`, `/dashboard` and so on) to the files in `public/html`, serves `css/` and `js/` as static assets, and forwards `/api/*` to FastAPI with the `Authorization` header passed through. The browser only talks to one origin, so no CORS setup is needed.
+- **Frontend guards and safety.** Logged-in pages stay hidden until `/auth/me` confirms the token, and any 401 clears the token and returns to `/login`. All user text is inserted with `textContent`, so a note like `<script>` cannot inject markup.
 
 ## Testing
 
