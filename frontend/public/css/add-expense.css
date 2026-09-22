@@ -2,3 +2,38 @@
 .add-card { max-width: 560px; }
 .form-actions { display: flex; gap: 10px; }
 .form-actions .btn-primary { flex: 1; }
+
+/* Category combobox: free-text input + a custom styled/keyboard-navigable suggestion list. */
+.combo { position: relative; }
+.combo input { width: 100%; padding-right: 40px; }
+.combo.open input {
+  border-color: var(--primary);
+  border-bottom-left-radius: 0; border-bottom-right-radius: 0;
+}
+.combo-toggle {
+  position: absolute; top: 50%; right: 4px; transform: translateY(-50%);
+  width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+  background: transparent; border: none; border-radius: 8px; color: var(--muted);
+  cursor: pointer;
+}
+.combo-toggle:hover { background: var(--tint-2); color: var(--ink); }
+.combo-toggle:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
+.combo-toggle svg { width: 16px; height: 16px; pointer-events: none; transition: transform 0.15s; }
+.combo.open .combo-toggle svg { transform: rotate(180deg); }
+
+.combo-list {
+  position: absolute; top: 100%; left: 0; right: 0; z-index: 20;
+  margin: 0; padding: 6px; list-style: none;
+  max-height: 220px; overflow-y: auto;
+  background: #fff; border: 1px solid var(--primary); border-top: none;
+  border-radius: 0 0 10px 10px;
+  box-shadow: 0 10px 24px rgba(20, 80, 140, 0.16);
+}
+.combo-option {
+  padding: 8px 10px; border-radius: 8px; cursor: pointer;
+  font-size: 0.9375rem; font-weight: 500; color: var(--ink);
+}
+.combo-option:hover, .combo-option.is-active { background: var(--primary-soft); color: var(--primary-ink); }
+.combo-empty { padding: 8px 10px; font-size: 0.875rem; font-style: italic; color: var(--muted); cursor: default; }
+
+.category-hint { font-size: 0.8rem; font-weight: 400; min-height: 1.2em; }

@@ -33,8 +33,17 @@
           <input id="date" type="date" required>
         </label>
         <label class="full">Category
-          <input id="category" type="text" maxlength="50" placeholder="food, travel, rent" list="category-options" autocomplete="off" required>
-          <datalist id="category-options"></datalist>
+          <span class="combo" id="category-combo">
+            <input id="category" type="text" maxlength="50" placeholder="food, travel, rent" autocomplete="off" required
+              role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-controls="category-listbox" aria-autocomplete="list">
+            <button type="button" id="category-toggle" class="combo-toggle" aria-label="Show category suggestions" tabindex="-1">
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <ul id="category-listbox" class="combo-list" role="listbox" hidden></ul>
+          </span>
+          <small id="category-hint" class="category-hint muted"></small>
         </label>
         <label class="full">Note (optional)
           <input id="note" type="text" maxlength="200" placeholder="What was it for?">
