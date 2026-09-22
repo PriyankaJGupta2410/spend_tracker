@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 
 
@@ -7,7 +9,7 @@ def test_create_expense_returns_201_and_normalises_category(client):
     })
     assert res.status_code == 201
     body = res.json()
-    assert body["id"] == 1
+    assert uuid.UUID(body["id"])  # ids are UUIDs, not sequential
     assert body["amount"] == 249.5
     assert body["category"] == "food"
     assert body["note"] == "lunch"

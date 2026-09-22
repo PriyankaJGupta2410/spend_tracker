@@ -92,6 +92,8 @@ Open http://localhost:3000, create an account and start adding expenses.
 
 Every page also loads the shared `css/base.css` (theme and common components). The logged-in pages add `css/navbar.css` and `js/navbar.js`. Shared scripts: `js/api.js` (fetch wrapper and token storage), `js/auth.js` (login, register, logout and page guards) and `js/utils.js` (formatting and DOM helpers). Scripts are ES modules, so no build step is needed.
 
+Category input on both pages is backed by `GET /expenses/categories`: the Expenses page filter is a `<select>` (an exact-match filter, so picking a category beats retyping it), and the Add Expense page keeps a free-text `<input>` with a `<datalist>` of suggestions, so a brand-new category can still be typed. Both fall back gracefully (no options besides "All categories", or no suggestions) if that request fails.
+
 ### 4. Tests
 
 ```bash
@@ -149,7 +151,7 @@ curl -X POST http://localhost:8000/auth/register \
   -d '{"username": "priyanka", "password": "a-strong-password"}'
 ```
 
-Returns `201` with `{"id": 1, "username": "priyanka"}`. Usernames are 3 to 30 letters, digits or underscores, stored lowercase. Passwords are 8 to 72 bytes. A taken username returns `409`.
+Returns `201` with `{"id": "b1f6...e2a4", "username": "priyanka"}` (`id` is a UUID, not sequential). Usernames are 3 to 30 letters, digits or underscores, stored lowercase. Passwords are 8 to 72 bytes. A taken username returns `409`.
 
 ### `POST /auth/login`
 
@@ -188,6 +190,14 @@ Query parameters, all optional: `category`, `start_date`, `end_date` (inclusive)
 curl -H "Authorization: Bearer $TOKEN" \
   "http://localhost:8000/expenses?category=food&start_date=2026-09-01&end_date=2026-09-30"
 ```
+
+### `GET /expenses/categories`
+
+```bash
+curl -H "Authorization: Bearer $TOKEN" http://localhost:8000/expenses/categories
+```
+
+Returns the logged-in user's distinct categories, alphabetically: `["food", "rent", "travel"]`. Used to drive the category dropdown/autocomplete in the UI instead of hardcoding a fixed list — since categories are free text, the app can only know what to suggest by looking at what the user has actually logged.
 
 ### `GET /summary?month=YYYY-MM`
 
@@ -237,6 +247,7 @@ All errors share one shape:
 - **Passwords with bcrypt.** Only the hash is stored. Login always performs a bcrypt check (against a dummy hash when the username is unknown) and returns one generic error, to avoid revealing which usernames exist through the message or the response time.
 - **Per-user data.** Every expense has a `user_id` foreign key, and every query in `services/expenses.py` filters by it. A test confirms that one user never sees another's expenses or summary.
 - **Categories are normalised** (trimmed, lowercased) on the way in, so "Food" and "food " are the same bucket. Filtering is normalised the same way.
+- **Categories are suggested, not fixed.** There is no predefined category list — anyone can log an expense under any category, so the API exposes `GET /expenses/categories` (the user's own distinct categories) instead of hardcoding one. The expenses filter uses it to build a `<select>` (filtering needs an exact match, so picking from what already exists beats retyping it correctly), while the add-expense form uses it as `<datalist>` suggestions on top of a normal text input, so a new category can still be typed freely without being blocked by a closed list.
 - **Summary is scoped to a month.** Month-over-month needs a reference month, so total and category breakdown are for the chosen month, compared with the previous one. `all_time_total` is included as an extra figure. When the previous month has no spend, `change_percent` is `null` rather than infinity or a made-up number.
 - **Spike insight rules.** A category is flagged when spend is *strictly more than* 20% above last month. Categories with no spend last month are not flagged, because there is no baseline. The threshold is a constant in `services/expenses.py`.
 - **Separated by layer, then by module.** `routers/` handles HTTP, `schemas/` validation, `models.py` and `database.py` persistence, `security.py` password hashing and JWTs, and `services/` the queries and pure calculation functions (`compute_change`, `find_spikes`, `month_range`), which are unit tested without HTTP. Within `routers/`, `schemas/` and `services/`, each feature module (`auth`, `expenses`) gets its own file, so adding a new module means adding one file per layer rather than growing three shared files.
@@ -251,6 +262,8 @@ All errors share one shape:
 - **Expenses:** creation and normalisation, persistence, a parametrised set of 10 invalid payloads (negative, zero, too many decimals, blank category, future date and so on), no write on invalid input, category and date filters, inclusive range boundaries, reversed range, pagination.
 - **Summary:** per-month totals that do not leak across months, category shares, month-over-month, empty database, no previous data, January to December rollover, the exact 20% boundary of the insight, floating point drift, invalid `month` values.
 - **Auth:** registration rules, duplicate usernames, hashed storage, login success and identical failure responses, all protected routes without a token, garbage token, wrong-secret token, expired token, token without `exp`, token for a nonexistent user, and isolation between two users.
+
+> `GET /expenses/categories` was added after this test suite was written and doesn't have coverage yet — worth adding a test for the empty case, alphabetical ordering, and that it's scoped per user, same as `/expenses`.
 
 ## What I would do differently with more time
 

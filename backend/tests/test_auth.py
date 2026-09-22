@@ -1,4 +1,5 @@
 import datetime as dt
+import uuid
 
 import jwt
 import pytest
@@ -14,7 +15,10 @@ EXPENSE = {"amount": 5, "category": "food", "date": "2026-09-01"}
 def test_register_returns_user_without_password(anon):
     res = anon.post("/auth/register", json={"username": "Alice_1", "password": PASSWORD})
     assert res.status_code == 201
-    assert res.json() == {"id": 1, "username": "alice_1"}
+    body = res.json()
+    assert body["username"] == "alice_1"
+    assert uuid.UUID(body["id"])  # ids are UUIDs, not sequential, so they can't be guessed/enumerated
+    assert set(body) == {"id", "username"}  # never leaks the password or its hash
 
 
 def test_register_duplicate_username_is_409_case_insensitive(anon):
@@ -51,13 +55,13 @@ def test_password_is_stored_hashed(anon):
 # ---------- login ----------
 
 def test_login_returns_bearer_token(anon):
-    anon.post("/auth/register", json={"username": "alice", "password": PASSWORD})
+    user = anon.post("/auth/register", json={"username": "alice", "password": PASSWORD}).json()
     res = anon.post("/auth/login", json={"username": "Alice", "password": PASSWORD})
     body = res.json()
     assert res.status_code == 200
     assert body["token_type"] == "bearer" and body["expires_in"] == 3600
     payload = jwt.decode(body["access_token"], config.JWT_SECRET_KEY, algorithms=["HS256"])
-    assert payload["sub"] == "1"
+    assert payload["sub"] == user["id"]  # the token's subject is the user's own UUID
 
 
 def test_wrong_password_and_unknown_user_get_same_401(anon):
